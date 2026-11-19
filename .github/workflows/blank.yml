@@ -8,7 +8,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: unzip -o ErmiBirr.zip
+      - name: Unzip
+        run: |
+          ls -la
+          unzip -o ./*.zip -d project
+          find project -name settings.gradle.kts
+          echo "ROOT=$(dirname "$(find project -name settings.gradle.kts | head -1)")" >> $GITHUB_ENV
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -18,9 +23,9 @@ jobs:
         with:
           gradle-version: 8.9
       - name: Build
-        working-directory: ErmiBirr
+        working-directory: ${{ env.ROOT }}
         run: gradle assembleDebug --no-daemon
       - uses: actions/upload-artifact@v4
         with:
           name: ErmiBirr-APK
-          path: ErmiBirr/app/build/outputs/apk/debug/*.apk
+          path: ${{ env.ROOT }}/app/build/outputs/apk/debug/*.apk
